@@ -60,6 +60,7 @@ for (var i = 0; i < TEXT_LINES.length; i++) {
 var noMash = false;
 var lastKey = "";
 var startingSpawnInterval = 4000;
+var speedMultiplier = 1;
 
 var state = {
     lines: TEXT_LINES,
@@ -586,6 +587,7 @@ function spawnWall(gameState) {
 
     var patterns = buildPatternList(score, totalLines, lastRow);
     var pattern = pickPattern(patterns);
+    pattern.speed = pattern.speed * speedMultiplier;
 
     if (pattern.type === "row_single") {
         var row = targetedRow(gameState);
@@ -802,7 +804,9 @@ function gameLoop(timestamp) {
         if (timestamp - state.lastWallSpawn > state.spawnInterval) {
             spawnWall(state);
             state.lastWallSpawn = timestamp;
-            state.spawnInterval = Math.max(2500, startingSpawnInterval - state.score * 50);
+            var rampedInterval = (startingSpawnInterval - state.score * 50) / speedMultiplier;
+            var floor = Math.min(startingSpawnInterval, 2500) / speedMultiplier;
+            state.spawnInterval = Math.max(floor, rampedInterval);
         }
 
         if (checkCollision(state)) {
@@ -823,7 +827,7 @@ function restartGame() {
     state.score = 0;
     state.gameOver = false;
     state.lastWallSpawn = 0;
-    state.spawnInterval = 4000;
+    state.spawnInterval = startingSpawnInterval / speedMultiplier;
     state.positionHistory = [];
     state.hint = "";
     state.marks = {};
@@ -836,11 +840,13 @@ function initSettings() {
     var rowsInput = document.getElementById("rows-val");
     var spawnInput = document.getElementById("spawn-interval-val");
     var noMashInput = document.getElementById("no-mash");
+    var speedInput = document.getElementById("speed-val");
 
     WALL_BLOCK_COLS = parseInt(colsInput.value, 10);
     WALL_BLOCK_ROWS = parseInt(rowsInput.value, 10);
     startingSpawnInterval = parseInt(spawnInput.value, 10);
     noMash = noMashInput.checked;
+    speedMultiplier = parseFloat(speedInput.value) || 1;
 
     colsInput.addEventListener("input", function () {
         WALL_BLOCK_COLS = parseInt(this.value, 10);
@@ -853,6 +859,9 @@ function initSettings() {
     });
     noMashInput.addEventListener("change", function () {
         noMash = this.checked;
+    });
+    speedInput.addEventListener("input", function () {
+        speedMultiplier = parseFloat(this.value) || 1;
     });
 }
 
