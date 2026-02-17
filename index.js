@@ -910,8 +910,38 @@ function initSettings() {
 }
 
 function startGame() {
+    var shiftKeyEl = document.querySelector('.kb-key[data-key="Shift"]');
+    var shiftedSymbols = {
+        "1": "!", "2": "@", "3": "#", "4": "$", "5": "%",
+        "6": "^", "7": "&", "8": "*", "9": "(", "0": ")",
+        "[": "{", "]": "}"
+    };
+    var allKeys = document.querySelectorAll(".kb-key:not(.kb-shift)");
+
+    function updateKeyLabels(shifted) {
+        for (var i = 0; i < allKeys.length; i++) {
+            var el = allKeys[i];
+            var dataKey = el.getAttribute("data-key");
+            if (shiftedSymbols[dataKey]) {
+                el.textContent = shifted ? shiftedSymbols[dataKey] : dataKey;
+            } else if (dataKey.length === 1 && dataKey >= "a" && dataKey <= "z") {
+                el.textContent = shifted ? dataKey.toUpperCase() : dataKey;
+            }
+        }
+    }
+
     document.addEventListener("keydown", function (event) {
+        if (event.key === "Shift") {
+            shiftKeyEl.classList.add("pressed");
+            updateKeyLabels(true);
+        }
         handleKeyDown(event, state);
+    });
+    document.addEventListener("keyup", function (event) {
+        if (event.key === "Shift") {
+            shiftKeyEl.classList.remove("pressed");
+            updateKeyLabels(false);
+        }
     });
 
     initSettings();
