@@ -56,41 +56,80 @@ function gotoLineEnd(lineLength) {
     return Math.max(0, lineLength - 1);
 }
 
-function gotoNextWordStart(cursorCol, line) {
+function gotoNextWordStart(cursorCol, line, cursorRow, lines) {
     var col = cursorCol;
+    var row = cursorRow;
     while (col < line.length - 1 && line[col] !== " ") {
         col = col + 1;
     }
     while (col < line.length - 1 && line[col] === " ") {
         col = col + 1;
     }
+    if (col >= line.length - 1 && lines && row < lines.length - 1) {
+        row = row + 1;
+        var nextLine = lines[row];
+        if (nextLine.length === 0) {
+            return { col: 0, row: row };
+        }
+        col = firstNonBlankCol(nextLine);
+        return { col: col, row: row };
+    }
+    if (lines) {
+        return { col: col, row: row };
+    }
     return col;
 }
 
-function gotoWordEnd(cursorCol, line) {
+function gotoWordEnd(cursorCol, line, cursorRow, lines) {
     var col = cursorCol;
+    var row = cursorRow;
     if (col < line.length - 1) {
         col = col + 1;
     }
     while (col < line.length - 1 && line[col] === " ") {
         col = col + 1;
     }
+    if (col >= line.length - 1 && lines && row < lines.length - 1) {
+        row = row + 1;
+        var nextLine = lines[row];
+        if (nextLine.length === 0) {
+            return { col: 0, row: row };
+        }
+        col = firstNonBlankCol(nextLine);
+        line = nextLine;
+    }
     while (col < line.length - 1 && line[col + 1] !== " ") {
         col = col + 1;
+    }
+    if (lines) {
+        return { col: col, row: row };
     }
     return col;
 }
 
-function gotoPrevWordStart(cursorCol, line) {
+function gotoPrevWordStart(cursorCol, line, cursorRow, lines) {
     var col = cursorCol;
+    var row = cursorRow;
     if (col > 0) {
         col = col - 1;
     }
     while (col > 0 && line[col] === " ") {
         col = col - 1;
     }
+    if (col === 0 && lines && row > 0) {
+        row = row - 1;
+        var prevLine = lines[row];
+        if (prevLine.length === 0) {
+            return { col: 0, row: row };
+        }
+        col = Math.max(0, prevLine.length - 1);
+        line = prevLine;
+    }
     while (col > 0 && line[col - 1] !== " ") {
         col = col - 1;
+    }
+    if (lines) {
+        return { col: col, row: row };
     }
     return col;
 }
@@ -192,6 +231,9 @@ function parseCommand(pendingKeys) {
     if (rest === "b") {
         return { complete: true, action: "word_prev", count: count || 1 };
     }
+    if (rest === "^") {
+        return { complete: true, action: "first_non_blank", count: null };
+    }
     if (rest === "$") {
         return { complete: true, action: "line_end", count: null };
     }
@@ -210,7 +252,7 @@ function parseCommand(pendingKeys) {
     if (rest.length === 2 && rest[0] === "T") {
         return { complete: true, action: "till_backward", count: count || 1, char: rest[1] };
     }
-    if (rest === "{") {
+if (rest === "{") {
         return { complete: true, action: "paragraph_up", count: count || 1 };
     }
     if (rest === "}") {
@@ -327,25 +369,34 @@ function executeCommand(command, gameState) {
         for (var i = 0; i < command.count; i++) {
             gameState.cursorCol = moveRight(gameState.cursorCol, lineLen);
         }
+    } else if (command.action === "first_non_blank") {
+        var line = gameState.lines[gameState.cursorRow];
+        gameState.cursorCol = firstNonBlankCol(line);
     } else if (command.action === "line_start") {
         gameState.cursorCol = gotoLineStart();
     } else if (command.action === "line_end") {
         var lineLen = gameState.lines[gameState.cursorRow].length;
         gameState.cursorCol = gotoLineEnd(lineLen);
     } else if (command.action === "word_next") {
-        var line = gameState.lines[gameState.cursorRow];
         for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoNextWordStart(gameState.cursorCol, line);
+            var line = gameState.lines[gameState.cursorRow];
+            var result = gotoNextWordStart(gameState.cursorCol, line, gameState.cursorRow, gameState.lines);
+            gameState.cursorCol = result.col;
+            gameState.cursorRow = result.row;
         }
     } else if (command.action === "word_end") {
-        var line = gameState.lines[gameState.cursorRow];
         for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoWordEnd(gameState.cursorCol, line);
+            var line = gameState.lines[gameState.cursorRow];
+            var result = gotoWordEnd(gameState.cursorCol, line, gameState.cursorRow, gameState.lines);
+            gameState.cursorCol = result.col;
+            gameState.cursorRow = result.row;
         }
     } else if (command.action === "word_prev") {
-        var line = gameState.lines[gameState.cursorRow];
         for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoPrevWordStart(gameState.cursorCol, line);
+            var line = gameState.lines[gameState.cursorRow];
+            var result = gotoPrevWordStart(gameState.cursorCol, line, gameState.cursorRow, gameState.lines);
+            gameState.cursorCol = result.col;
+            gameState.cursorRow = result.row;
         }
     } else if (command.action === "find_forward") {
         var line = gameState.lines[gameState.cursorRow];

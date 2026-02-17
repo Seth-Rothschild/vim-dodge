@@ -709,6 +709,106 @@ test("G saves jumpMark", function () {
     assert.strictEqual(s.cursorRow, 3);
 });
 
+// --- parseCommand: ^ ---
+
+console.log("\nparseCommand: ^");
+
+test("^ is first_non_blank", function () {
+    var cmd = vim.parseCommand("^");
+    assert.strictEqual(cmd.complete, true);
+    assert.strictEqual(cmd.action, "first_non_blank");
+});
+
+// --- executeCommand: first_non_blank ---
+
+console.log("\nexecuteCommand: first_non_blank");
+
+test("first_non_blank moves to first non-space char", function () {
+    var s = makeState(["   hello world"], 0, 10);
+    vim.executeCommand({ action: "first_non_blank", count: null }, s);
+    assert.strictEqual(s.cursorCol, 3);
+});
+
+test("first_non_blank on line with no leading spaces goes to 0", function () {
+    var s = makeState(["hello"], 0, 3);
+    vim.executeCommand({ action: "first_non_blank", count: null }, s);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
+// --- word movement across lines ---
+
+console.log("\nword movement across lines");
+
+var MULTI_LINES = [
+    "hello world",
+    "foo bar",
+    "",
+    "baz qux",
+];
+
+test("w at end of line wraps to next line", function () {
+    var s = makeState(MULTI_LINES, 0, 6);
+    vim.executeCommand({ action: "word_next", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 1);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
+test("w stops at empty line (paragraph break)", function () {
+    var s = makeState(MULTI_LINES, 1, 4);
+    vim.executeCommand({ action: "word_next", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 2);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
+test("w on last line last word stays put", function () {
+    var s = makeState(MULTI_LINES, 3, 4);
+    vim.executeCommand({ action: "word_next", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 3);
+    assert.strictEqual(s.cursorCol, 6);
+});
+
+test("w with count wraps across multiple lines", function () {
+    var s = makeState(MULTI_LINES, 0, 0);
+    vim.executeCommand({ action: "word_next", count: 3 }, s);
+    assert.strictEqual(s.cursorRow, 1);
+    assert.strictEqual(s.cursorCol, 4);
+});
+
+test("e at end of line wraps to next line", function () {
+    var s = makeState(MULTI_LINES, 0, 10);
+    vim.executeCommand({ action: "word_end", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 1);
+    assert.strictEqual(s.cursorCol, 2);
+});
+
+test("e stops at empty line (paragraph break)", function () {
+    var s = makeState(MULTI_LINES, 1, 6);
+    vim.executeCommand({ action: "word_end", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 2);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
+test("b at start of line wraps to previous line", function () {
+    var s = makeState(MULTI_LINES, 1, 0);
+    vim.executeCommand({ action: "word_prev", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 0);
+    assert.strictEqual(s.cursorCol, 6);
+});
+
+test("b stops at empty line (paragraph break) going backward", function () {
+    var s = makeState(MULTI_LINES, 3, 0);
+    vim.executeCommand({ action: "word_prev", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 2);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
+test("b on first line col 0 stays put", function () {
+    var s = makeState(MULTI_LINES, 0, 0);
+    vim.executeCommand({ action: "word_prev", count: 1 }, s);
+    assert.strictEqual(s.cursorRow, 0);
+    assert.strictEqual(s.cursorCol, 0);
+});
+
 // --- summary ---
 
 console.log("\n" + passed + " passed, " + failed + " failed");

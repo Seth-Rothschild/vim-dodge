@@ -104,6 +104,37 @@
             padding: 2px 4px;
         }
 
+        .custom-text-area {
+            width: 100%;
+            min-height: 120px;
+            background: #1e1e1e;
+            border: 1px solid #555;
+            border-radius: 3px;
+            color: #e5c07b;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            padding: 6px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .custom-text-btn {
+            background: #98c379;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: sans-serif;
+            width: 100%;
+        }
+
+        .custom-text-btn:hover {
+            background: #7fb365;
+        }
+
         .sidebar {
             background: #252525;
             border: 1px solid #3a3a3a;
@@ -258,6 +289,7 @@
         <h3>Big jumps</h3>
         <dl>
             <dt>0</dt><dd>start of line</dd>
+            <dt>^</dt><dd>first non-blank</dd>
             <dt>$</dt><dd>end of line</dd>
             <dt>gg</dt><dd>first line</dd>
             <dt>G</dt><dd>last line</dd>
@@ -310,6 +342,12 @@
             <span class="setting-label">Speed</span>
             <input type="number" class="setting-input" id="speed-val" value="1" step="0.1" min="0.1">
         </div>
+    </div>
+
+    <div class="settings-panel">
+        <h2>Custom Text</h2>
+        <textarea id="custom-text" class="custom-text-area" placeholder="Paste your own text here..."></textarea>
+        <button id="apply-text" class="custom-text-btn">Apply Text</button>
     </div>
     </div>
 

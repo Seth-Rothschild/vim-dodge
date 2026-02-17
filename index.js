@@ -121,7 +121,7 @@ function handleKeyDown(event, gameState) {
     var isVimKey = (
         key === "j" || key === "k" || key === "h" || key === "l" ||
         key === "g" || key === "G" ||
-        key === "w" || key === "e" || key === "b" || key === "$" ||
+        key === "w" || key === "e" || key === "b" || key === "^" || key === "$" ||
         key === "f" || key === "F" || key === "t" || key === "T" ||
         key === "{" || key === "}" ||
         key === "m" || key === "'" || key === "`" ||
@@ -835,6 +835,44 @@ function restartGame() {
     lastTimestamp = null;
 }
 
+function applyCustomText(text) {
+    var rawLines = text.split("\n");
+    if (rawLines.length === 0 || (rawLines.length === 1 && rawLines[0] === "")) {
+        return;
+    }
+    while (rawLines.length > 0 && rawLines[rawLines.length - 1] === "") {
+        rawLines.pop();
+    }
+
+    TEXT_LINES = rawLines;
+
+    LONGEST_LINE = 0;
+    for (var i = 0; i < TEXT_LINES.length; i++) {
+        if (TEXT_LINES[i].length > LONGEST_LINE) {
+            LONGEST_LINE = TEXT_LINES[i].length;
+        }
+    }
+    TOTAL_COLS = GUTTER_CHARS + LONGEST_LINE;
+
+    canvas.width = 2 * WALL_MARGIN + PADDING_LEFT * 2 + TOTAL_COLS * CHAR_WIDTH;
+    canvas.height = 2 * WALL_MARGIN + PADDING_TOP * 2 + TEXT_LINES.length * LINE_HEIGHT + 24;
+
+    PARAGRAPH_BREAKS = [];
+    for (var i = 0; i < TEXT_LINES.length; i++) {
+        if (TEXT_LINES[i].trim() === "") {
+            PARAGRAPH_BREAKS.push(i);
+        }
+    }
+
+    state.lines = TEXT_LINES;
+    var startRow = Math.min(8, TEXT_LINES.length - 1);
+    state.cursorRow = startRow;
+    state.cursorCol = Math.floor(TEXT_LINES[startRow].length / 2);
+    state.desiredCol = state.cursorCol;
+
+    restartGame();
+}
+
 function initSettings() {
     var colsInput = document.getElementById("cols-val");
     var rowsInput = document.getElementById("rows-val");
@@ -862,6 +900,12 @@ function initSettings() {
     });
     speedInput.addEventListener("input", function () {
         speedMultiplier = parseFloat(this.value) || 1;
+    });
+
+    var customTextInput = document.getElementById("custom-text");
+    var applyTextBtn = document.getElementById("apply-text");
+    applyTextBtn.addEventListener("click", function () {
+        applyCustomText(customTextInput.value);
     });
 }
 
