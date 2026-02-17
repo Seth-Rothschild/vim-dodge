@@ -57,6 +57,10 @@ for (var i = 0; i < TEXT_LINES.length; i++) {
     }
 }
 
+var noMash = false;
+var lastKey = "";
+var startingSpawnInterval = 4000;
+
 var state = {
     lines: TEXT_LINES,
     cursorRow: 8,
@@ -68,7 +72,7 @@ var state = {
     gameOver: false,
     nextWallId: 0,
     lastWallSpawn: 0,
-    spawnInterval: 4000,
+    spawnInterval: startingSpawnInterval,
     pressedKeyTimer: null,
     positionHistory: [],
     hint: "",
@@ -105,6 +109,11 @@ function handleKeyDown(event, gameState) {
     }
 
     var key = event.key;
+
+    if (noMash && key === lastKey && key !== "g") {
+        return;
+    }
+    lastKey = key;
 
     var waitingForChar = isWaitingForChar(gameState.pendingKeys);
 
@@ -793,7 +802,7 @@ function gameLoop(timestamp) {
         if (timestamp - state.lastWallSpawn > state.spawnInterval) {
             spawnWall(state);
             state.lastWallSpawn = timestamp;
-            state.spawnInterval = Math.max(2500, 4000 - state.score * 50);
+            state.spawnInterval = Math.max(2500, startingSpawnInterval - state.score * 50);
         }
 
         if (checkCollision(state)) {
@@ -822,11 +831,37 @@ function restartGame() {
     lastTimestamp = null;
 }
 
+function initSettings() {
+    var colsInput = document.getElementById("cols-val");
+    var rowsInput = document.getElementById("rows-val");
+    var spawnInput = document.getElementById("spawn-interval-val");
+    var noMashInput = document.getElementById("no-mash");
+
+    WALL_BLOCK_COLS = parseInt(colsInput.value, 10);
+    WALL_BLOCK_ROWS = parseInt(rowsInput.value, 10);
+    startingSpawnInterval = parseInt(spawnInput.value, 10);
+    noMash = noMashInput.checked;
+
+    colsInput.addEventListener("input", function () {
+        WALL_BLOCK_COLS = parseInt(this.value, 10);
+    });
+    rowsInput.addEventListener("input", function () {
+        WALL_BLOCK_ROWS = parseInt(this.value, 10);
+    });
+    spawnInput.addEventListener("input", function () {
+        startingSpawnInterval = parseInt(this.value, 10);
+    });
+    noMashInput.addEventListener("change", function () {
+        noMash = this.checked;
+    });
+}
+
 function startGame() {
     document.addEventListener("keydown", function (event) {
         handleKeyDown(event, state);
     });
 
+    initSettings();
     requestAnimationFrame(gameLoop);
 }
 
