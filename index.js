@@ -72,6 +72,8 @@ var state = {
     pressedKeyTimer: null,
     positionHistory: [],
     hint: "",
+    marks: {},
+    jumpMark: null,
 };
 
 // --- Grid Coordinate Helpers ---
@@ -90,234 +92,6 @@ function textAreaLeft() {
 
 function textAreaRight() {
     return WALL_MARGIN + PADDING_LEFT + TOTAL_COLS * CHAR_WIDTH;
-}
-
-// --- Movement Functions ---
-
-function moveDown(cursorRow, totalLines) {
-    if (cursorRow < totalLines - 1) {
-        return cursorRow + 1;
-    }
-    return cursorRow;
-}
-
-function moveUp(cursorRow) {
-    if (cursorRow > 0) {
-        return cursorRow - 1;
-    }
-    return cursorRow;
-}
-
-function gotoLine(lineNumber, totalLines) {
-    return Math.max(0, Math.min(lineNumber, totalLines - 1));
-}
-
-function gotoParagraphUp(cursorRow, lines) {
-    var row = cursorRow - 1;
-    while (row > 0 && lines[row].trim() !== "") {
-        row = row - 1;
-    }
-    return Math.max(0, row);
-}
-
-function gotoParagraphDown(cursorRow, lines) {
-    var row = cursorRow + 1;
-    while (row < lines.length - 1 && lines[row].trim() !== "") {
-        row = row + 1;
-    }
-    return Math.min(lines.length - 1, row);
-}
-
-function moveLeft(cursorCol) {
-    if (cursorCol > 0) {
-        return cursorCol - 1;
-    }
-    return cursorCol;
-}
-
-function moveRight(cursorCol, lineLength) {
-    if (cursorCol < lineLength - 1) {
-        return cursorCol + 1;
-    }
-    return cursorCol;
-}
-
-function gotoLineStart() {
-    return 0;
-}
-
-function gotoLineEnd(lineLength) {
-    return Math.max(0, lineLength - 1);
-}
-
-function gotoNextWordStart(cursorCol, line) {
-    var col = cursorCol;
-    while (col < line.length - 1 && line[col] !== " ") {
-        col = col + 1;
-    }
-    while (col < line.length - 1 && line[col] === " ") {
-        col = col + 1;
-    }
-    return col;
-}
-
-function gotoWordEnd(cursorCol, line) {
-    var col = cursorCol;
-    if (col < line.length - 1) {
-        col = col + 1;
-    }
-    while (col < line.length - 1 && line[col] === " ") {
-        col = col + 1;
-    }
-    while (col < line.length - 1 && line[col + 1] !== " ") {
-        col = col + 1;
-    }
-    return col;
-}
-
-function gotoPrevWordStart(cursorCol, line) {
-    var col = cursorCol;
-    if (col > 0) {
-        col = col - 1;
-    }
-    while (col > 0 && line[col] === " ") {
-        col = col - 1;
-    }
-    while (col > 0 && line[col - 1] !== " ") {
-        col = col - 1;
-    }
-    return col;
-}
-
-function findCharForward(cursorCol, line, ch) {
-    for (var i = cursorCol + 1; i < line.length; i++) {
-        if (line[i] === ch) {
-            return i;
-        }
-    }
-    return cursorCol;
-}
-
-function findCharBackward(cursorCol, line, ch) {
-    for (var i = cursorCol - 1; i >= 0; i--) {
-        if (line[i] === ch) {
-            return i;
-        }
-    }
-    return cursorCol;
-}
-
-function tillCharForward(cursorCol, line, ch) {
-    var found = findCharForward(cursorCol, line, ch);
-    if (found !== cursorCol) {
-        return found - 1;
-    }
-    return cursorCol;
-}
-
-function tillCharBackward(cursorCol, line, ch) {
-    var found = findCharBackward(cursorCol, line, ch);
-    if (found !== cursorCol) {
-        return found + 1;
-    }
-    return cursorCol;
-}
-
-// --- Command Parsing ---
-
-function parseCommand(pendingKeys) {
-    if (pendingKeys === "") {
-        return { complete: false, action: null, count: null };
-    }
-
-    var digits = "";
-    var rest = "";
-    for (var i = 0; i < pendingKeys.length; i++) {
-        if (pendingKeys[i] >= "0" && pendingKeys[i] <= "9" && rest === "") {
-            digits = digits + pendingKeys[i];
-        } else {
-            rest = rest + pendingKeys[i];
-        }
-    }
-
-    var count = digits === "" ? null : parseInt(digits, 10);
-
-    if (rest === "j") {
-        return { complete: true, action: "down", count: count || 1 };
-    }
-    if (rest === "k") {
-        return { complete: true, action: "up", count: count || 1 };
-    }
-    if (rest === "G") {
-        if (count !== null) {
-            return { complete: true, action: "goto", count: count };
-        }
-        return { complete: true, action: "last", count: null };
-    }
-    if (rest === "gg") {
-        if (count !== null) {
-            return { complete: true, action: "goto", count: count };
-        }
-        return { complete: true, action: "first", count: null };
-    }
-    if (rest === "g") {
-        return { complete: false, action: null, count: count };
-    }
-    if (rest === "h") {
-        return { complete: true, action: "left", count: count || 1 };
-    }
-    if (rest === "l") {
-        return { complete: true, action: "right", count: count || 1 };
-    }
-    if (rest === "w") {
-        return { complete: true, action: "word_next", count: count || 1 };
-    }
-    if (rest === "e") {
-        return { complete: true, action: "word_end", count: count || 1 };
-    }
-    if (rest === "b") {
-        return { complete: true, action: "word_prev", count: count || 1 };
-    }
-    if (rest === "$") {
-        return { complete: true, action: "line_end", count: null };
-    }
-    if (rest === "f" || rest === "F" || rest === "t" || rest === "T") {
-        return { complete: false, action: null, count: count };
-    }
-    if (rest.length === 2 && rest[0] === "f") {
-        return { complete: true, action: "find_forward", count: count || 1, char: rest[1] };
-    }
-    if (rest.length === 2 && rest[0] === "F") {
-        return { complete: true, action: "find_backward", count: count || 1, char: rest[1] };
-    }
-    if (rest.length === 2 && rest[0] === "t") {
-        return { complete: true, action: "till_forward", count: count || 1, char: rest[1] };
-    }
-    if (rest.length === 2 && rest[0] === "T") {
-        return { complete: true, action: "till_backward", count: count || 1, char: rest[1] };
-    }
-    if (rest === "{") {
-        return { complete: true, action: "paragraph_up", count: count || 1 };
-    }
-    if (rest === "}") {
-        return { complete: true, action: "paragraph_down", count: count || 1 };
-    }
-    if (rest === "" && digits === "0") {
-        return { complete: true, action: "line_start", count: null };
-    }
-    if (rest === "") {
-        return { complete: false, action: null, count: count };
-    }
-
-    return { complete: false, action: "invalid", count: null };
-}
-
-function isWaitingForChar(pendingKeys) {
-    if (pendingKeys.length === 0) {
-        return false;
-    }
-    var lastChar = pendingKeys[pendingKeys.length - 1];
-    return lastChar === "f" || lastChar === "F" || lastChar === "t" || lastChar === "T";
 }
 
 // --- Input Handling ---
@@ -340,6 +114,7 @@ function handleKeyDown(event, gameState) {
         key === "w" || key === "e" || key === "b" || key === "$" ||
         key === "f" || key === "F" || key === "t" || key === "T" ||
         key === "{" || key === "}" ||
+        key === "m" || key === "'" || key === "`" ||
         (key >= "0" && key <= "9")
     );
 
@@ -402,83 +177,6 @@ function recordPosition(gameState) {
     });
     if (gameState.positionHistory.length > 20) {
         gameState.positionHistory.shift();
-    }
-}
-
-function executeCommand(command, gameState) {
-    var totalLines = gameState.lines.length;
-
-    if (command.action === "down") {
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorRow = moveDown(gameState.cursorRow, totalLines);
-        }
-    } else if (command.action === "up") {
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorRow = moveUp(gameState.cursorRow);
-        }
-    } else if (command.action === "first") {
-        gameState.cursorRow = gotoLine(0, totalLines);
-    } else if (command.action === "last") {
-        gameState.cursorRow = gotoLine(totalLines - 1, totalLines);
-    } else if (command.action === "goto") {
-        gameState.cursorRow = gotoLine(command.count - 1, totalLines);
-    } else if (command.action === "paragraph_up") {
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorRow = gotoParagraphUp(gameState.cursorRow, gameState.lines);
-        }
-    } else if (command.action === "paragraph_down") {
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorRow = gotoParagraphDown(gameState.cursorRow, gameState.lines);
-        }
-    } else if (command.action === "left") {
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = moveLeft(gameState.cursorCol);
-        }
-    } else if (command.action === "right") {
-        var lineLen = gameState.lines[gameState.cursorRow].length;
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = moveRight(gameState.cursorCol, lineLen);
-        }
-    } else if (command.action === "line_start") {
-        gameState.cursorCol = gotoLineStart();
-    } else if (command.action === "line_end") {
-        var lineLen = gameState.lines[gameState.cursorRow].length;
-        gameState.cursorCol = gotoLineEnd(lineLen);
-    } else if (command.action === "word_next") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoNextWordStart(gameState.cursorCol, line);
-        }
-    } else if (command.action === "word_end") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoWordEnd(gameState.cursorCol, line);
-        }
-    } else if (command.action === "word_prev") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = gotoPrevWordStart(gameState.cursorCol, line);
-        }
-    } else if (command.action === "find_forward") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = findCharForward(gameState.cursorCol, line, command.char);
-        }
-    } else if (command.action === "find_backward") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = findCharBackward(gameState.cursorCol, line, command.char);
-        }
-    } else if (command.action === "till_forward") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = tillCharForward(gameState.cursorCol, line, command.char);
-        }
-    } else if (command.action === "till_backward") {
-        var line = gameState.lines[gameState.cursorRow];
-        for (var i = 0; i < command.count; i++) {
-            gameState.cursorCol = tillCharBackward(gameState.cursorCol, line, command.char);
-        }
     }
 }
 
@@ -1119,6 +817,8 @@ function restartGame() {
     state.spawnInterval = 4000;
     state.positionHistory = [];
     state.hint = "";
+    state.marks = {};
+    state.jumpMark = null;
     lastTimestamp = null;
 }
 

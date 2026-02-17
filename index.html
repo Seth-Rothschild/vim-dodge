@@ -180,7 +180,7 @@
             <button class="kb-key" data-key="v">V</button>
             <button class="kb-key active-key" data-key="b">B</button>
             <button class="kb-key" data-key="n">N</button>
-            <button class="kb-key" data-key="m">M</button>
+            <button class="kb-key active-key" data-key="m">M</button>
         </div>
     </div>
 
@@ -217,8 +217,14 @@
             <dt>5gg</dt><dd>go to line 5</dd>
             <dt>f<em>x</em></dt><dd>find <em>x</em> forward</dd>
             <dt>F<em>x</em></dt><dd>find <em>x</em> backward</dd>
-            <dt>t<em>x</em></dt><dd>till <em>x</em> forward</dd>
-            <dt>T<em>x</em></dt><dd>till <em>x</em> backward</dd>
+        </dl>
+
+        <h3>Marks</h3>
+        <dl>
+            <dt>m<em>x</em></dt><dd>set mark <em>x</em></dd>
+            <dt>'<em>x</em></dt><dd>line of mark <em>x</em></dd>
+            <dt>`<em>x</em></dt><dd>exact pos of mark <em>x</em></dd>
+            <dt>''</dt><dd>line before last jump</dd>
         </dl>
 
         <h3>Repeat</h3>
@@ -228,6 +234,7 @@
         </dl>
     </div>
 
+    <script src="vim.js"></script>
     <script src="index.js"></script>
 </body>
 </html>
