@@ -61,6 +61,7 @@ var state = {
     lines: TEXT_LINES,
     cursorRow: 8,
     cursorCol: Math.floor(TEXT_LINES[8].length / 2),
+    desiredCol: Math.floor(TEXT_LINES[8].length / 2),
     pendingKeys: "",
     walls: [],
     score: 0,
@@ -365,14 +366,30 @@ function handleKeyDown(event, gameState) {
         return;
     }
 
+    var isVertical = (
+        command.action === "down" || command.action === "up" ||
+        command.action === "first" || command.action === "last" ||
+        command.action === "goto" ||
+        command.action === "paragraph_up" || command.action === "paragraph_down"
+    );
+
     executeCommand(command, gameState);
     gameState.pendingKeys = "";
 
     var lineLen = gameState.lines[gameState.cursorRow].length;
-    if (lineLen === 0) {
-        gameState.cursorCol = 0;
-    } else if (gameState.cursorCol >= lineLen) {
-        gameState.cursorCol = lineLen - 1;
+    if (isVertical) {
+        if (lineLen === 0) {
+            gameState.cursorCol = 0;
+        } else {
+            gameState.cursorCol = Math.min(gameState.desiredCol, lineLen - 1);
+        }
+    } else {
+        if (lineLen === 0) {
+            gameState.cursorCol = 0;
+        } else if (gameState.cursorCol >= lineLen) {
+            gameState.cursorCol = lineLen - 1;
+        }
+        gameState.desiredCol = gameState.cursorCol;
     }
 
     recordPosition(gameState);
@@ -1093,6 +1110,7 @@ function gameLoop(timestamp) {
 function restartGame() {
     state.cursorRow = 8;
     state.cursorCol = Math.floor(TEXT_LINES[8].length / 2);
+    state.desiredCol = Math.floor(TEXT_LINES[8].length / 2);
     state.pendingKeys = "";
     state.walls = [];
     state.score = 0;
