@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vim Dodge</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: sans-serif;
+            background: #2d2d2d;
+            color: #ccc;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #98c379;
+            margin-bottom: 8px;
+        }
+
+        canvas {
+            border: 2px solid #444;
+            border-radius: 4px;
+        }
+
+        .keyboard {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .kb-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .kb-row.row-num { padding-left: 0; }
+        .kb-row.row1 { padding-left: 12px; }
+        .kb-row.row2 { padding-left: 24px; }
+        .kb-row.row3 { padding-left: 48px; }
+
+        .kb-key {
+            width: 42px;
+            height: 42px;
+            border-radius: 6px;
+            border: 3px solid #555;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #666;
+            color: #999;
+        }
+
+        .kb-key.active-key {
+            background: #4a4a4a;
+            color: #fff;
+            border-color: #98c379;
+        }
+
+        .kb-key.pressed {
+            background: #98c379;
+            color: #1e1e1e;
+            border-color: #98c379;
+            box-shadow: 0 0 8px #98c379;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vim Dodge</h1>
+    <canvas id="game" width="700" height="340"></canvas>
+
+    <div class="keyboard">
+        <div class="kb-row row-num">
+            <button class="kb-key active-key" data-key="1">1</button>
+            <button class="kb-key active-key" data-key="2">2</button>
+            <button class="kb-key active-key" data-key="3">3</button>
+            <button class="kb-key active-key" data-key="4">4</button>
+            <button class="kb-key active-key" data-key="5">5</button>
+            <button class="kb-key active-key" data-key="6">6</button>
+            <button class="kb-key active-key" data-key="7">7</button>
+            <button class="kb-key active-key" data-key="8">8</button>
+            <button class="kb-key active-key" data-key="9">9</button>
+            <button class="kb-key active-key" data-key="0">0</button>
+        </div>
+        <div class="kb-row row1">
+            <button class="kb-key" data-key="q">Q</button>
+            <button class="kb-key active-key" data-key="w">W</button>
+            <button class="kb-key active-key" data-key="e">E</button>
+            <button class="kb-key" data-key="r">R</button>
+            <button class="kb-key active-key" data-key="t">T</button>
+            <button class="kb-key" data-key="y">Y</button>
+            <button class="kb-key" data-key="u">U</button>
+            <button class="kb-key" data-key="i">I</button>
+            <button class="kb-key" data-key="o">O</button>
+            <button class="kb-key" data-key="p">P</button>
+            <button class="kb-key active-key" data-key="[">[</button>
+            <button class="kb-key active-key" data-key="]">]</button>
+        </div>
+        <div class="kb-row row2">
+            <button class="kb-key" data-key="a">A</button>
+            <button class="kb-key" data-key="s">S</button>
+            <button class="kb-key" data-key="d">D</button>
+            <button class="kb-key active-key" data-key="f">F</button>
+            <button class="kb-key active-key" data-key="g">G</button>
+            <button class="kb-key active-key" data-key="h">H</button>
+            <button class="kb-key active-key" data-key="j">J</button>
+            <button class="kb-key active-key" data-key="k">K</button>
+            <button class="kb-key active-key" data-key="l">L</button>
+        </div>
+        <div class="kb-row row3">
+            <button class="kb-key" data-key="z">Z</button>
+            <button class="kb-key" data-key="x">X</button>
+            <button class="kb-key" data-key="c">C</button>
+            <button class="kb-key" data-key="v">V</button>
+            <button class="kb-key active-key" data-key="b">B</button>
+            <button class="kb-key" data-key="n">N</button>
+            <button class="kb-key" data-key="m">M</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
