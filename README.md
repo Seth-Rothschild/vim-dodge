@@ -14,6 +14,7 @@ Walls sweep across a text display and you navigate using vim keybindings to avoi
 - `gg` `G` `5gg` — jump to line
 - `{` `}` — paragraph jumps
 - `f` `t` `F` `T` — find character
+- `mx` `'x` `` `x `` `''` — marks
 
 ## Usage
 
