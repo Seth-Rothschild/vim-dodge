@@ -89,9 +89,10 @@
         .setting-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 13px;
             color: #888;
+            margin-bottom: 8px;
         }
 
         .setting-label {
@@ -99,14 +100,14 @@
         }
 
         .setting-input {
-            width: 54px;
+            width: 60px;
             background: #1e1e1e;
             border: 1px solid #555;
             border-radius: 3px;
             color: #e5c07b;
             font-size: 13px;
             font-family: 'Courier New', monospace;
-            padding: 2px 4px;
+            padding: 4px 6px;
         }
 
         .custom-text-area {
@@ -172,6 +173,58 @@
             border-bottom: 1px solid #3a3a3a;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #ccc;
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .hamburger-btn:hover {
+            background: #3a3a3a;
+        }
+
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-overlay.open {
+            display: flex;
+        }
+
+        .settings-modal {
+            background: #2d2d2d;
+            border: 1px solid #3a3a3a;
+            border-radius: 10px;
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .sidebar h2 {
@@ -275,7 +328,10 @@
 
     <div class="sidebar-column">
     <div class="sidebar">
-        <h2>Vim Commands</h2>
+        <div style="display:flex; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">
+            <h2 style="margin:0; padding:0; border:none;">Vim Commands</h2>
+            <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
+        </div>
 
         <h3>Move cursor</h3>
         <dl>
@@ -326,35 +382,52 @@
 
     </div>
 
-    <div class="settings-panel">
-        <h2>Settings</h2>
-        <div class="setting-row">
-            <span class="setting-label">Wall width</span>
-            <input type="number" class="setting-input" id="cols-val" value="5">
-        </div>
-        <div class="setting-row">
-            <span class="setting-label">Wall height</span>
-            <input type="number" class="setting-input" id="rows-val" value="5">
-        </div>
-        <div class="setting-row">
-            <span class="setting-label">Spawn interval</span>
-            <input type="number" class="setting-input" id="spawn-interval-val" value="4000">
-        </div>
-        <div class="setting-row">
-            <label class="setting-label" for="no-mash">No mash</label>
-            <input type="checkbox" id="no-mash">
-        </div>
-        <div class="setting-row">
-            <span class="setting-label">Speed</span>
-            <input type="number" class="setting-input" id="speed-val" value="1" step="0.1" min="0.1">
-        </div>
     </div>
 
-    <div class="settings-panel">
-        <h2>Custom Text</h2>
-        <textarea id="custom-text" class="custom-text-area" placeholder="Paste your own text here..."></textarea>
-        <button id="apply-text" class="custom-text-btn">Apply Text</button>
-    </div>
+    <div class="settings-overlay" id="settings-overlay">
+        <div class="settings-modal">
+            <div class="settings-panel">
+                <h2>Difficulty Settings</h2>
+                <div class="setting-row">
+                    <span class="setting-label">Wall width</span>
+                    <input type="number" class="setting-input" id="cols-val" value="5">
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Wall height</span>
+                    <input type="number" class="setting-input" id="rows-val" value="5">
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Spawn interval</span>
+                    <input type="number" class="setting-input" id="spawn-interval-val" value="4000">
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Speed</span>
+                    <input type="number" class="setting-input" id="speed-val" value="1" step="0.1" min="0.1">
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label" for="no-mash">No mash</label>
+                    <input type="checkbox" id="no-mash">
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label" for="no-top-walls">No top walls</label>
+                    <input type="checkbox" id="no-top-walls">
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label" for="no-bottom-walls">No bottom walls</label>
+                    <input type="checkbox" id="no-bottom-walls">
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label" for="no-left-walls">No left walls</label>
+                    <input type="checkbox" id="no-left-walls">
+                </div>
+            </div>
+
+            <div class="settings-panel">
+                <h2>Custom Text</h2>
+                <textarea id="custom-text" class="custom-text-area" placeholder="Paste your own text here..."></textarea>
+                <button id="apply-text" class="custom-text-btn">Apply Text</button>
+            </div>
+        </div>
     </div>
 
     <script src="vim.js"></script>

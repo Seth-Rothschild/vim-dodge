@@ -61,6 +61,9 @@ var noMash = false;
 var lastKey = "";
 var startingSpawnInterval = 4000;
 var speedMultiplier = 1;
+var noTopWalls = false;
+var noBottomWalls = false;
+var noLeftWalls = false;
 
 var state = {
     lines: TEXT_LINES,
@@ -583,9 +586,28 @@ function spawnWall(gameState) {
     var totalLines = TEXT_LINES.length;
     var lastRow = totalLines - 1;
     var direction = Math.random() < 0.5 ? "left" : "right";
+    if (noLeftWalls) {
+        direction = "left";
+    }
     var colDirection = Math.random() < 0.5 ? "down" : "up";
+    if (noTopWalls && noBottomWalls) {
+        colDirection = null;
+    } else if (noTopWalls) {
+        colDirection = "up";
+    } else if (noBottomWalls) {
+        colDirection = "down";
+    }
 
     var patterns = buildPatternList(score, totalLines, lastRow);
+    if (colDirection === null) {
+        var filtered = [];
+        for (var i = 0; i < patterns.length; i++) {
+            if (patterns[i].type.indexOf("col_") !== 0) {
+                filtered.push(patterns[i]);
+            }
+        }
+        patterns = filtered;
+    }
     var pattern = pickPattern(patterns);
     pattern.speed = pattern.speed * speedMultiplier;
 
@@ -902,10 +924,37 @@ function initSettings() {
         speedMultiplier = parseFloat(this.value) || 1;
     });
 
+    var noTopInput = document.getElementById("no-top-walls");
+    var noBottomInput = document.getElementById("no-bottom-walls");
+    var noLeftInput = document.getElementById("no-left-walls");
+    noTopWalls = noTopInput.checked;
+    noBottomWalls = noBottomInput.checked;
+    noLeftWalls = noLeftInput.checked;
+    noTopInput.addEventListener("change", function () {
+        noTopWalls = this.checked;
+    });
+    noBottomInput.addEventListener("change", function () {
+        noBottomWalls = this.checked;
+    });
+    noLeftInput.addEventListener("change", function () {
+        noLeftWalls = this.checked;
+    });
+
     var customTextInput = document.getElementById("custom-text");
     var applyTextBtn = document.getElementById("apply-text");
     applyTextBtn.addEventListener("click", function () {
         applyCustomText(customTextInput.value);
+    });
+
+    var overlay = document.getElementById("settings-overlay");
+    var hamburger = document.getElementById("hamburger-btn");
+    hamburger.addEventListener("click", function () {
+        overlay.classList.toggle("open");
+    });
+    overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+            overlay.classList.remove("open");
+        }
     });
 }
 
