@@ -1,6 +1,6 @@
 # Vim Dodge
 
-A browser game that teaches vim navigation by dodging walls. Primarily written with Claude Code.
+A browser game that teaches vim navigation by dodging walls. Primarily written with Claude Code. You can [play it here](https://sethjrothschild.com/vim-dodge/).
 
 ![demo](images/demo.gif)
 
