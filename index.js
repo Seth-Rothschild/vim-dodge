@@ -64,6 +64,7 @@ var speedMultiplier = 1;
 var noTopWalls = false;
 var noBottomWalls = false;
 var noLeftWalls = false;
+var sidebarFontSize = 13;
 
 var state = {
     lines: TEXT_LINES,
@@ -114,7 +115,7 @@ function handleKeyDown(event, gameState) {
 
     var key = event.key;
 
-    if (noMash && key === lastKey && key !== "g") {
+    if (noMash && key === lastKey && !(key == "g" || key == "f" || key == "t")) {
         return;
     }
     lastKey = key;
@@ -938,6 +939,18 @@ function initSettings() {
     });
     noLeftInput.addEventListener("change", function () {
         noLeftWalls = this.checked;
+    });
+
+    var fontSizeInput = document.getElementById("sidebar-font-size");
+    var sidebar = document.getElementById("sidebar");
+    var sidebarColumn = document.querySelector(".sidebar-column");
+    sidebarFontSize = parseInt(fontSizeInput.value, 10) || 13;
+    sidebar.style.fontSize = sidebarFontSize + "px";
+    fontSizeInput.addEventListener("input", function () {
+        sidebarFontSize = parseInt(this.value, 10) || 13;
+        sidebar.style.fontSize = sidebarFontSize + "px";
+        var sidebarWidth = 220 + Math.max(0, sidebarFontSize - 13) * 26;
+        sidebarColumn.style.width = sidebarWidth + "px";
     });
 
     var customTextInput = document.getElementById("custom-text");

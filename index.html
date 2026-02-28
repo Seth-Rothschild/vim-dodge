@@ -327,7 +327,7 @@
     </div>
 
     <div class="sidebar-column">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div style="display:flex; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">
             <h2 style="margin:0; padding:0; border:none;">Vim Commands</h2>
             <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
@@ -433,6 +433,14 @@
                 <h2>Custom Text</h2>
                 <textarea id="custom-text" class="custom-text-area" placeholder="Paste your own text here..."></textarea>
                 <button id="apply-text" class="custom-text-btn">Apply Text</button>
+            </div>
+
+            <div class="settings-panel">
+                <h2>Accessibility</h2>
+                <div class="setting-row">
+                    <label class="setting-label" for="sidebar-font-size">Help panel text size</label>
+                    <input type="number" class="setting-input" id="sidebar-font-size" value="13" min="8" max="32">
+                </div>
             </div>
         </div>
     </div>
